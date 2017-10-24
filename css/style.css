@@ -1,0 +1,36 @@
+html, body {
+  font-family: Arial, sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.container{
+  height: 100%;
+}
+
+#map {
+  height: 95%;
+  width: 80%;
+  float: left;
+}
+
+.top-bar {
+  height: 5%;
+  width: 80%;
+  background: #555;
+  float: left;
+  color: white;
+}
+
+.side-menu {
+  float:left;
+  height: 100%;
+  width: 20%;
+  background: black;
+  color: white;
+}
+
+.top-bar h1 {
+  margin: 0;
+}

@@ -2,35 +2,21 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <style>
-      html, body {
-        font-family: Arial, sans-serif;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        height: 100%;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-    <div id="map"></div>
-
-    <script>
-      var map;
-      function initMap() {
-        // Constructor creates a new map - only center and zoom are required
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 40.7413549, lng: -73.9980244},
-          zoom: 13
-        });
-      }
-    </script>
-
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0BwJCNWr6W--JFwEJm1dLQMpp8C0T_sU&v=3&callback=initMap">
-    </script>
-
+    <div class="container">
+      <div class="side-menu">
+        <h1>waffles are good</h1>
+      </div>
+      <div class="top-bar">
+        <h1> Buttons Go Here </h1>
+      </div>
+      <div id="map"></div>
+    <div>
   </body>
+  <script src="js/app.js"></script>
+  <script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0BwJCNWr6W--JFwEJm1dLQMpp8C0T_sU&v=3&callback=initMap">
+  </script>
 </html>
