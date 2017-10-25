@@ -8,6 +8,14 @@ function initMap() {
   });
 }
 
+function appViewModel() {
+  var self = this
+
+  var markers = ko.observableArray([])
+}
+
+ko.applyBindings(new appViewModel());
+
 /* KNOCKOUTJS Reference. Source: http://learn.knockoutjs.com/#/?tutorial=collections
 <h2>Your seat reservations</h2>
 
