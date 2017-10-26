@@ -4,6 +4,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .container{
@@ -12,9 +13,10 @@ html, body {
 
 /* Map */
 #map {
-  height: 95%;
+  height: 100%;
   width: 80%;
   float: left;
+  bottom: 0;
 }
 
 /* side-menu */
@@ -37,7 +39,7 @@ html, body {
 
 /* top-bar */
 .top-bar {
-  min-height: 40px;
+  min-height: 60px;
   width: 80%;
   background: #555;
   float: left;
