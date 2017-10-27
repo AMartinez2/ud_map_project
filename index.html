@@ -9,7 +9,7 @@
       <div class="side-menu">
           <input id="input-location" data-bind="value: inputLocation">
           <!--  This button function call will change to a function that calls to maps -->
-          <button data-bind="click: $root.addToMarkers">GO</button>
+          <button id="submit-location" data-bind="click: $root.addToMarkers">GO</button>
         <div data-bind="foreach: markers">
           <p data-bind="text: data"></p>
         </div>
