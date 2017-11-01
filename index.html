@@ -9,9 +9,9 @@
       <div class="side-menu">
           <input id="input-location" data-bind="value: inputLocation">
           <!--  This button function call will change to a function that calls to maps -->
-          <button id="submit-location" data-bind="click: $root.addToMarkers">GO</button>
-        <div data-bind="foreach: markers">
-          <p data-bind="text: data"></p>
+          <button id="submit-location" data-bind="click: $root.run">GO</button>
+        <div data-bind="foreach: visualMarkers">
+          <p data-bind="text: name"></p>
         </div>
       </div>
       <div id="map"></div>
@@ -23,50 +23,3 @@
   src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyA0BwJCNWr6W--JFwEJm1dLQMpp8C0T_sU&v=3&callback=initMap">
   </script>
 </html>
-<!--
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-  </head>
-  <body>
-    <form>
-      <input data-bind="value: name">
-      <button data-bind="click: $root.addThing">Click this</button>
-    </form>
-    <table>
-      <thread><tr>
-        <th>Passenger name</th><th>Meal</th><th>Surcharge</th><th></th>
-      </tr></thread>
-      <tbody data-bind="foreach: mks">
-        <tr>
-          <td data-bind="text: name"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <script type='text/javascript' src='knockout-3.4.2.js'></script>
-    <script>
-
-      function Mk(name) {
-        var self = this;
-        self.name = name;
-      }
-
-      function ReservationsViewModel() {
-        var self = this;
-        self.name = ko.observable();
-
-        // Editable data
-        self.mks = ko.observableArray([]);
-
-        self.addThing = function() {
-          // var thing = self.name();
-          self.mks.push( new Mk(self.name()) );
-        }
-      }
-
-      ko.applyBindings(new ReservationsViewModel());
-    </script>
-  </body>
-</html> -->

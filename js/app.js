@@ -16,49 +16,48 @@
 
 // Basically our model ////////////////////
 
-
+// Global Maps services
 var map;
-var locationResult;
+var geocoder;
+var places;
+var markers = [];
+var largeInfoWindow;
+var streetView;
+
 
 function initMap() {
-  var pyrmont = {lat: -33.867, lng: 151.195};
   // Constructor creates a new map - only center and zoom are required
+  var loc = {lat: 33.8688, lng: 151.2093}; // Default lat lng for sydney
   map = new google.maps.Map(document.getElementById('map'), {
-    // {lat: 40.7413549, lng: -73.9980244},
-    center: pyrmont,
+    center: loc,
     zoom: 14
   });
 
-  // This autocomplete is for use in the geocoder entry box.
-  // var inputAreaComplete = new google.maps.places.Autocomplete(
-  //     document.getElementById('input-location'));
+  // Init the geocoder
+  geocoder = new google.maps.Geocoder();
+  // Init places
+  places = new google.maps.places.PlacesService(map);
+  // Init our infoWindow
+  largeInfoWindow = new google.maps.InfoWindow();
+  // Init streetView
+  streetView = new google.maps.StreetViewService();
 
-  // Geo code given information
-  var geocoder = new google.maps.Geocoder();
-  document.getElementById('submit-location').addEventListener('click', function() {
-    geocodeAddress(geocoder, map);
-  });
-
-  // Get relevant places near the searched area
-  var places = new google.maps.places.PlacesService(map);
-  places.nearbySearch({
-    location: pyrmont,
-    radius: 500
-  }, callback);
+  // Get default location and markers
+  codeAddress("sydney");
+  // generateMarkers(locationLatLng);
+  showMarkers("sydney");
+  // Fill the side bar with the different markers
+  // populateVisualMarkerArray();
 }
 
-//TODO work on integrating the geocode function into the acutal flow of the app
 
 // Geocode a given address
-function geocodeAddress(geocoder, resultsMap) {
-  var address = document.getElementById('input-location').value;
-  geocoder.geocode({'address': address}, function(results, status) {
+function codeAddress(locationInput) {
+  geocoder.geocode( {'address': locationInput}, function(results, status) {
     if (status == 'OK') {
-      resultsMap.setCenter(results[0].geometry.location);
-      // var marker = new google.maps.Marker({
-      //   map: resultsMap,
-      //   position: results[0].geometry.location
-      // });
+      map.setCenter(results[0].geometry.location);
+      // locationLatLng = results[0].geometry.location;
+      generateMarkers(results[0].geometry.location);
     }
     else {
       alert('Geocode was not successful for the following reason: ' + status);
@@ -66,32 +65,120 @@ function geocodeAddress(geocoder, resultsMap) {
   });
 }
 
-// To hold all data regarding each marker passed from Maps API
-function Marker(value){
-  var self = this;
-  // May need more data variables
-  self.data = value;
-}
 
-function callback(results, status) {
-  if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
-      createMarker(results[i]);
-    }
-  }
-}
-
-function createMarker(place) {
-  var placeLoc = place.geometry.location;
-  var marker = new google.maps.Marker({
-    map: map,
-    position: place.geometry.location
+// Generate places markers
+function generateMarkers(inputLatLng) {
+  // Get relevant places near the searched area
+  places.nearbySearch({
+    location: inputLatLng,
+    radius: 1000
+  }, function generate(results, status) {
+   if (status === google.maps.places.PlacesServiceStatus.OK) {
+     for (var i = 0; i < results.length; i++) {
+       var place = results[i];
+       var marker = new google.maps.Marker({
+         map: map,
+         title: place.name,
+         position: place.geometry.location
+       });
+       marker.addListener('click', function() {
+         populateInfoWindow(this, largeInfoWindow);
+       });
+       // Push to markers array
+       markers.push(marker);
+     }
+   }
+   else {
+     alert("Places request failed, status = " + status);
+   }
   });
 }
 
-function update(inputLocation) {
 
+// This function will loop through the markers array and display them all.
+function showMarkers(inputLocation) {
+  largeInfoWindow.setContent("");
+  largeInfoWindow.marker = null;
+
+  // Extend the boundaries of the map for each marker and display the marker
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+  // Center around the entered area
+  geocoder.geocode(
+    { address: inputLocation }, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        map.setCenter(results[0].geometry.location);
+        map.setZoom(15);
+      } else {
+        window.alert('We could not find that location - try entering a more' +
+            ' specific place.');
+      }
+    });
 }
+
+
+// This function will loop through the listings and remove them
+function hideMarkers() {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
+  // Clear the array
+  markers = [];
+}
+
+
+// This function adds information to a markers corrisponding infoWindow and
+//  displays the marker's location information when a marker is clicked
+function populateInfoWindow(marker, infoWindow) {
+  // Check to see if infoWindow is already on our clicked marker
+  if (infoWindow.marker != marker) {
+    // Clear the window
+    infoWindow.setContent("");
+
+    // assign our marker
+    infoWindow.marker = marker;
+
+    // Listen for window close
+    infoWindow.addListener('closeclick', function() {
+      infoWindow.marker = null;
+    });
+    infoWindow.setContent("<div>" + marker.title + "</div>");
+    // Add that young streetview to the infoWindow if possible
+    var radius = 40;
+
+    function getStreetView(data, status) {
+      if (status == google.maps.StreetViewStatus.OK) {
+        var location = data.location.latLng;
+        var heading = google.maps.geometry.spherical.computeHeading(
+          location, marker.position);
+        largeInfoWindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+        var panoramaOptions = {
+          position: location,
+          pov: {
+            heading: heading,
+            pitch: 30
+          }
+        };
+        var panorama = new google.maps.StreetViewPanorama(
+          document.getElementById('pano'), panoramaOptions);
+      } else {
+        largeInfoWindow.setContent('<div>' + marker.title + '</div>' +
+          '<div>No Street View Found</div>');
+      }
+    }
+    streetView.getPanoramaByLocation(marker.position, radius, getStreetView);
+    infoWindow.open(map, marker);
+  }
+}
+
+
+function update(inputLocation) {
+  hideMarkers();
+  codeAddress(inputLocation);
+  showMarkers(inputLocation);
+}
+
 
 // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
 function AppViewModel() {
@@ -100,13 +187,20 @@ function AppViewModel() {
     self.inputLocation = ko.observable();
 
     // KO array of our markers
-    self.markers = ko.observableArray([]);
+    self.visualMarkers = ko.observableArray([]);
 
     // TODO When we start getting marker info from maps, we will need to flush
     //        the markers array and then refill it with necessary info
-    self.addToMarkers = function() {
+    self.run = function() {
       update(self.inputLocation());
-      // self.markers.push( new Marker(self.inputLocation()) );
+      //self.markers.push( new Marker(self.inputLocation()) );
+      // Empty visualMarkers array everytime we update
+      self.visualMarkers([]);
+      console.log('waffles');
+      for(var i = 0; i < markers.length; i++) {
+        console.log("pushing " + markers[i]);
+        self.visualMarkers.push(markers[i]);
+      }
     }
 }
 // Activates knockout.js

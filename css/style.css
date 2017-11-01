@@ -20,7 +20,6 @@ html, body {
 }
 
 /* side-menu */
-
 .side-menu {
   float:left;
   height: 100%;
@@ -48,4 +47,10 @@ html, body {
 
 .top-bar h1 {
   margin: 0;
+}
+
+/* infowindow */
+#pano {
+  width: 200px;
+  height: 200px;
 }
