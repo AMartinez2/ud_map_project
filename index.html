@@ -11,8 +11,8 @@
           <input id="input-location" data-bind="value: inputLocation">
           <!--  This button function call will change to a function that calls to maps -->
           <button id="submit-location" data-bind="click: $root.run">GO</button>
-        <div data-bind="foreach: visualMarkers">
-          <p data-bind="text: name"></p>
+        <div data-bind="foreach: markerList">
+          <p data-bind="text: title"></p>
         </div>
       </div>
       <div id="map"></div>
@@ -22,6 +22,6 @@
   <script type='text/javascript' src='knockout-3.4.2.js'></script>
   <script src="js/app.js"></script>
   <script async defer
-  src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyA0BwJCNWr6W--JFwEJm1dLQMpp8C0T_sU&v=3&callback=map.init">
+  src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyA0BwJCNWr6W--JFwEJm1dLQMpp8C0T_sU&v=3&callback=initMap">
   </script>
 </html>
