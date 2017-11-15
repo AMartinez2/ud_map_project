@@ -7,7 +7,7 @@ html, body {
   overflow: hidden;
 }
 
-.container{
+.con{
   height: 100%;
 }
 
@@ -23,10 +23,24 @@ html, body {
 .side-menu {
   float:left;
   height: 100%;
-  width: 20%;
+  min-width: 20%;
   background: #0F0F0F;
   color: white;
   text-align: center;
+  transition: all 0.3s;
+}
+
+.side-menu.active {
+  margin-left: -250px;
+}
+
+@media (max-width: 768px) {
+  .side-menu {
+    margin-left: -250px;
+  }
+  .side-menu.active {
+    margin-left: 0;
+  }
 }
 
 #location-input {
@@ -36,21 +50,23 @@ html, body {
   margin-top: 10px;
 }
 
-/* top-bar */
-.top-bar {
-  min-height: 60px;
-  width: 80%;
-  background: #555;
-  float: left;
-  color: white;
+#location-list-element {
+  padding-top: 20px;
 }
 
-.top-bar h1 {
-  margin: 0;
+#location-list-element p {
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
+
 
 /* infowindow */
 #pano {
   width: 200px;
   height: 200px;
+  float: left;
+}
+
+#wikiLink {
+  float: left;
 }

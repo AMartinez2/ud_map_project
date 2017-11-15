@@ -1,10 +1,17 @@
 var locations = [
-  {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
-  {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
-  {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
-  {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
-  {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
-  {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
+  {title: 'Lincoln Memorial', location: {lat: 38.8892686, lng: -77.0501761}},
+  {title: 'The White House', location: {lat: 38.8976763, lng: -77.0365298}},
+  {title: 'Washington Monument', location: {lat: 38.8894839, lng: -77.0352791}},
+  {title: 'Lincoln Memorial Reflecting Pool', location: {lat: 38.8893459, lng: -77.0447157}},
+  {title: 'United States Capitol', location: {lat: 38.8899389, lng: -77.0090505}},
+  {title: 'Thomas Jefferson Memorial', location: {lat: 38.8813959, lng: -77.0364569}},
+  {title: 'Hirshhorn Museum', location: {lat: 38.888236, lng: -77.0230138}},
+  {title: 'Holocaust Memorial Museum', location: {lat: 38.8867076, lng: -77.0326074}},
+  {title: 'National Archives Building', location: {lat: 38.8928229, lng: -77.0229648}},
+  {title: 'International Spy Museum', location: {lat: 38.896945, lng: -77.0236171}},
+  {title: 'Smithsonian Institution', location: {lat: 38.8859942, lng: -77.0212813}},
+  {title: 'Folger Shakespeare Library', location: {lat: 38.8893719, lng: -77.0027549}},
+  {title: 'Smithsonian Castle', location: {lat: 38.88878241, lng: -77.02601686}},
 ]
 
 var markers = [];
@@ -16,7 +23,7 @@ var bounds;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 40.7180628, lng: -73.9961237},
+    center: {lat: 38.88995829, lng: -77.02966092},
     zoom: 13,
     mapControl: true,
     mapTypeControlOptions: {
@@ -56,34 +63,6 @@ function initMap() {
   ko.applyBindings(new AppViewModel());
 }
 
-// // Geocode a given address
-// function codeAddress(place) {
-//   var address = place.adr;
-//
-//   geocoder.geocode( {'address': address}, function(results, status) {
-//     if (status == 'OK') {
-//       var marker = new google.maps.Marker({
-//         map: map,
-//         title: place.name,
-//         position: results[0].geometry.location
-//       });
-//       bounds.extend(marker.position);
-//       // Add event listener
-//       marker.addListener('click', function() {
-//         self.populateInfoWindow(this, infoWindow);
-//       });
-//       // Push to the markers array
-//       markers.push({
-//         name: marker.title,
-//         marker: marker
-//       });
-//     }
-//     else {
-//       alert('Geocode was not successful for the following reason: ' + status);
-//     }
-//   });
-// };
-
 
 // This function adds information to a markers corrisponding infoWindow and
 //  displays the marker's location information when a marker is clicked
@@ -108,7 +87,12 @@ function populateInfoWindow(marker, infoWindow) {
         var location = data.location.latLng;
         var heading = google.maps.geometry.spherical.computeHeading(
           location, marker.position);
-        infoWindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+          var windowData = '<div>' +
+                              marker.title +
+                            '</div><div id="pano">' +
+                          '</div>' +
+                          '<div id="wikiLink"><h4>Related Wiki Articles</h4></div>';
+        infoWindow.setContent(windowData);
         var panoramaOptions = {
           position: location,
           pov: {
@@ -120,16 +104,57 @@ function populateInfoWindow(marker, infoWindow) {
           document.getElementById('pano'), panoramaOptions);
       } else {
         infoWindow.setContent('<div>' + marker.title + marker.position + '</div>' +
-          '<div>No Street View Found</div>');
+          '<div>No Street View Found</div><div id="wikiLink"></div>');
       }
     }
     streetView.getPanoramaByLocation(marker.position, radius, getStreetView);
+    // Call to get relevant wikipedia page for clicked marker
+    getWikiPage(marker.title);
     infoWindow.open(map, marker);
+    console.log("waffles");
+
   }
 }
 
+// Wikipedia Api Call Function
+function getWikiPage(title) {
+  var $wikiLink = $('#wikiLink');
+  console.log(title);
+  title = title.replace(/\s/g, '');
+  var url = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' +
+              title + '&format=json&callback=wikiCallback';
+console.log("url: " + url);
+  var timeout = setTimeout(function() {
+     $wikiLink.text("Failed to get wikipedia resources");
+  }, 8000);
+
+  $.ajax({
+    url: url,
+    dataType: 'jsonp',
+    success: function(data) {
+      var $wiki = $('#wikiLink');
+      var list = data[1];
+      for (var i = 0; i < list.length; i++) {
+        var url = 'http://en.wikipedia.org/wiki/' + list[i];
+        $wiki.append('<li><a href="' + url + '">' + list[i] + '</a></li>').html;
+      };
+      clearTimeout(timeout);
+    }
+  });
+}
 
 
+// An item in the location list was clicked
+function clicked(locationName) {
+  markers.forEach(function(marker) {
+				if (marker.title == locationName) {
+          google.maps.event.trigger(marker.marker, 'click');
+				}
+  });
+}
+
+
+// Our AppViewModel
 function AppViewModel() {
   var self = this;
   // textInput
@@ -147,7 +172,7 @@ function AppViewModel() {
     } else {
       return ko.utils.arrayFilter(markers, function(mk) {
         // If there is no match, indexOf() returns -1
-        var select = mk.title.toLowerCase().indexOf(self.inputLocation()) !== -1;
+        var select = mk.title.toLowerCase().indexOf(fill) !== -1;
         if (select) {
           mk.marker.setVisible(true);
         } else {
