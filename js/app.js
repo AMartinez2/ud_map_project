@@ -13,7 +13,173 @@ var locations = [
   {title: 'Folger Shakespeare Library', location: {lat: 38.8893719, lng: -77.0027549}},
   {title: 'Smithsonian Castle', location: {lat: 38.88878241, lng: -77.02601686}},
 ]
-
+var styles = [
+{
+    "featureType": "all",
+    "elementType": "labels.text.fill",
+    "stylers": [
+        {
+            "saturation": 36
+        },
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 40
+        }
+    ]
+},
+{
+    "featureType": "all",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+        {
+            "visibility": "on"
+        },
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 16
+        }
+    ]
+},
+{
+    "featureType": "all",
+    "elementType": "labels.icon",
+    "stylers": [
+        {
+            "visibility": "off"
+        }
+    ]
+},
+{
+    "featureType": "administrative",
+    "elementType": "geometry.fill",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 20
+        }
+    ]
+},
+{
+    "featureType": "administrative",
+    "elementType": "geometry.stroke",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 17
+        },
+        {
+            "weight": 1.2
+        }
+    ]
+},
+{
+    "featureType": "landscape",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 20
+        }
+    ]
+},
+{
+    "featureType": "poi",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 21
+        }
+    ]
+},
+{
+    "featureType": "road.highway",
+    "elementType": "geometry.fill",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 17
+        }
+    ]
+},
+{
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 29
+        },
+        {
+            "weight": 0.2
+        }
+    ]
+},
+{
+    "featureType": "road.arterial",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 18
+        }
+    ]
+},
+{
+    "featureType": "road.local",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 16
+        }
+    ]
+},
+{
+    "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#000000"
+        },
+        {
+            "lightness": 19
+        }
+    ]
+},
+{
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+        {
+            "color": "#8397a0"
+        },
+        {
+            "lightness": 17
+        }
+    ]
+}
+];
 var markers = [];
 var infoWindow;
 var map;
@@ -29,7 +195,8 @@ function initMap() {
     mapTypeControlOptions: {
            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
            position: google.maps.ControlPosition.BOTTOM_CENTER
-         }
+         },
+    styles: styles
   });
   // Init our infoWindow
   infoWindow = new google.maps.InfoWindow();
@@ -49,7 +216,8 @@ function initMap() {
     markers.push({
       title:    marker.title,
       position: marker.position,
-      marker:   marker
+      marker:   marker,
+      trim:     marker.title.replace(/\s/g, '-') // For assigning id to html elements
     });
     bounds.extend(marker.position);
     marker.addListener('click', function() {
@@ -87,11 +255,10 @@ function populateInfoWindow(marker, infoWindow) {
         var location = data.location.latLng;
         var heading = google.maps.geometry.spherical.computeHeading(
           location, marker.position);
-          var windowData = '<div>' +
-                              marker.title +
-                            '</div><div id="pano">' +
-                          '</div>' +
-                          '<div id="wikiLink"><h4>Related Wiki Articles</h4></div>';
+          var windowData = '<div id="pano"></div>' +
+                          '<div id="wikiLink"><h2>' +
+                                              marker.title +
+                            '</h2><h5>Related Wiki Articles</h4></div>';
         infoWindow.setContent(windowData);
         var panoramaOptions = {
           position: location,
@@ -103,7 +270,7 @@ function populateInfoWindow(marker, infoWindow) {
         var panorama = new google.maps.StreetViewPanorama(
           document.getElementById('pano'), panoramaOptions);
       } else {
-        infoWindow.setContent('<div>' + marker.title + marker.position + '</div>' +
+        infoWindow.setContent('<div><h3>' + marker.title + marker.position + '</h3></div>' +
           '<div>No Street View Found</div><div id="wikiLink"></div>');
       }
     }
@@ -111,7 +278,6 @@ function populateInfoWindow(marker, infoWindow) {
     // Call to get relevant wikipedia page for clicked marker
     getWikiPage(marker.title);
     infoWindow.open(map, marker);
-    console.log("waffles");
 
   }
 }
@@ -119,11 +285,9 @@ function populateInfoWindow(marker, infoWindow) {
 // Wikipedia Api Call Function
 function getWikiPage(title) {
   var $wikiLink = $('#wikiLink');
-  console.log(title);
   title = title.replace(/\s/g, '');
   var url = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' +
               title + '&format=json&callback=wikiCallback';
-console.log("url: " + url);
   var timeout = setTimeout(function() {
      $wikiLink.text("Failed to get wikipedia resources");
   }, 8000);
@@ -136,7 +300,7 @@ console.log("url: " + url);
       var list = data[1];
       for (var i = 0; i < list.length; i++) {
         var url = 'http://en.wikipedia.org/wiki/' + list[i];
-        $wiki.append('<li><a href="' + url + '">' + list[i] + '</a></li>').html;
+        $wiki.append('<a href="' + url + '">' + list[i] + '</a></br>').html;
       };
       clearTimeout(timeout);
     }
@@ -144,10 +308,32 @@ console.log("url: " + url);
 }
 
 
+function toggle() {
+  var button = document.getElementById('show-menu');
+  var menu = document.getElementById('side-menu');
+  var map = document.getElementById('map');
+  // Hide menu
+  if (button.classList[0] == 'hidden') {
+    button.classList.remove('hidden');
+    menu.classList.add('hidden');
+    map.classList.add('stretch');
+    google.maps.event.trigger(map, 'resize')
+  }
+  // Show menu
+  else {
+    button.classList.add('hidden');
+    menu.classList.remove('hidden');
+    map.classList.remove('stretch');
+    google.maps.event.trigger(map, 'resize')
+  }
+}
+
+
 // An item in the location list was clicked
-function clicked(locationName) {
+// Argument will be a DOM element. Use element id to compare to `marker.trim`
+function clicked(parentNode) {
   markers.forEach(function(marker) {
-				if (marker.title == locationName) {
+				if (marker.trim == parentNode.id) {
           google.maps.event.trigger(marker.marker, 'click');
 				}
   });

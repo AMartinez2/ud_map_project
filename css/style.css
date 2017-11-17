@@ -5,10 +5,35 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: #212121;
 }
 
-.con{
+.con {
   height: 100%;
+  width: 100%;
+  min-width: 1230px;
+  max-width: 1230px;
+  margin: auto;
+}
+
+@media screen and (min-width: 1400px) {
+  .con {
+    max-width: 100px;
+    max-height: 1000px;
+  }
+}
+
+.hidden {
+  /*visibility: hidden;*/
+  position: absolute;
+  overflow: hidden;
+  visibility: hidden;
+  left: -500px;
+}
+
+.stretch {
+  width: 100% !important;
+  margin-left: auto !important;
 }
 
 /* Map */
@@ -23,50 +48,65 @@ html, body {
 .side-menu {
   float:left;
   height: 100%;
-  min-width: 20%;
-  background: #0F0F0F;
+  width: 20%;
+  min-width: 245px;
+  background: #212121;
   color: white;
   text-align: center;
   transition: all 0.3s;
 }
 
-.side-menu.active {
-  margin-left: -250px;
-}
-
-@media (max-width: 768px) {
-  .side-menu {
-    margin-left: -250px;
-  }
-  .side-menu.active {
-    margin-left: 0;
-  }
-}
-
 #location-input {
   border: 0;
   padding: 0;
-  width: 90%;
-  margin-top: 10px;
+  width: 70%;
+  margin-top: 15px;
+}
+
+#submit-location {
 }
 
 #location-list-element {
   padding-top: 20px;
 }
 
-#location-list-element p {
-  margin-top: 3px;
+#location-list-element a {
+  text-decoration: none;
+  color: white;
+  font-size: 17px;
+}
+#location-list-element a:hover {
+  color: grey;
+}
+
+#location-list-element h5 {
+  margin-top: 0;
   margin-bottom: 3px;
 }
 
+#show-menu {
+  position: fixed;
+  margin: 5px;
+  z-index: 2;
+}
+
+#inner-toggle {
+  margin-top: 10px;
+}
 
 /* infowindow */
 #pano {
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   float: left;
 }
 
 #wikiLink {
   float: left;
+  padding-left: 13px;
+}
+
+#wikiLink a {
+  text-decoration: none;
+  color: black;
 }
