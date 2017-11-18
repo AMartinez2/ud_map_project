@@ -180,12 +180,15 @@ var styles = [
     ]
 }
 ];
+
+// Globals
 var markers = [];
 var infoWindow;
 var map;
 var geocoder;
 var streetView;
 var bounds;
+var wikiPage;
 
 
 // Inital call function
@@ -237,24 +240,15 @@ function initMap() {
 
 function createListener(marker) {
   marker.addListener('click', function() {
-    populateInfoWindow(this, infoWindow);
+    getWikiPage(this.title, this);
+    // populateInfoWindow(this, infoWindow);
   });
 }
 
 
-// Get the streetView panorama for the infoWindow
+// Fill a marker's info window when clicked
+function populateInfoWindow(marker, infoWindow, windowInfo) {
 
-
-
-// This function adds information to a markers corrisponding infoWindow and
-//  displays the marker's location information when a marker is clicked
-function populateInfoWindow(marker, infoWindow) {
-  if (marker.getAnimation() !== null) {
-       marker.setAnimation(null);
-  }
-  else {
-    marker.setAnimation(google.maps.Animation.DROP);
-  }
   // Check to see if infoWindow is already on our clicked marker
   if (infoWindow.marker != marker) {
     // Clear the window
@@ -266,9 +260,6 @@ function populateInfoWindow(marker, infoWindow) {
       infoWindow.marker = null;
     });
     map.panTo(marker.position);
-    // Marker animation
-    infoWindow.setContent("<div>" + marker.title + "</div>");
-    // Add that young streetview to the infoWindow if possible
     var radius = 40;
 
     // Get panoramic street view for given marker
@@ -278,10 +269,7 @@ function populateInfoWindow(marker, infoWindow) {
         var heading = google.maps.geometry.spherical.computeHeading(
           location, marker.position);
           // Data to be displayed in window
-          var windowData = '<div id="pano"></div>' +
-                          '<div id="wikiLink"><h2>' + marker.title +
-                            '</h2><h5>Related Wiki Articles</h4></div>';
-        infoWindow.setContent(windowData);
+        infoWindow.setContent(windowInfo);
         var panoramaOptions = {
           position: location,
           pov: {
@@ -297,44 +285,53 @@ function populateInfoWindow(marker, infoWindow) {
           '<div>No Street View Found</div><div id="wikiLink"></div>');
       }
     });
-    // Call to get relevant wikipedia page for clicked marker
-    getWikiPage(marker.title);
     // Open our infoWindow
     infoWindow.open(map, marker);
   }
 }
 
-
 // Wikipedia Api Call Function
-function getWikiPage(title) {
-  var $wikiLink = $('#wikiLink');
-  title = title.replace(/\s/g, '');
+function getWikiPage(title, marker) {
+  var ntitle = title.replace(/\s/g, '');
   var url = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' +
-              title + '&format=json&callback=wikiCallback';
+              ntitle + '&format=json&callback=wikiCallback';
   var timeout = setTimeout(function() {
-     $wikiLink.text("Failed to get wikipedia resources");
+    var windowInfo =  "<div id='pano'></div>" +
+                "<div id='wikiLink'>" +
+                  "<h2>" + title + "</h2>" +
+                  "<a href='#'>Unable to load Wikipedia information</a></div>";
   }, 8000);
-
+  // Ajax call, then pass info to populateInfoWindow
   $.ajax({
     url: url,
     dataType: 'jsonp',
-    success: function(data) {
-      var $wiki = $('#wikiLink');
-      var list = data[1];
-      for (var i = 0; i < list.length; i++) {
-        var url = 'http://en.wikipedia.org/wiki/' + list[i];
-        $wiki.append('<a href="' + url + '">' + list[i] + '</a></br>').html;
-      }
-      clearTimeout(timeout);
-    },
-    error: function(data) { // Something went wrong
-      var $wiki = $('#wikiLink');
-      $wiki.append("Unable to get Wikipedia resources.");
+    async: false,
+    cache: false,
+    type: "GET"
+  }).done(function(data) {
+    var li = data[1];
+    var windowInfo = "<div id='pano'></div>" +
+              "<div id='wikiLink'>" +
+                "<h2>" + title + "</h2>" +
+                "<a href='http://en.wikipedia.org/wiki/" +
+                li[0] + "'>Wikipedia Article</a></div>";
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
     }
+    else {
+      marker.setAnimation(google.maps.Animation.DROP);
+    }
+    populateInfoWindow(marker, infoWindow, windowInfo);
+    clearTimeout(timeout);
+  }).fail(function(data) { // Something went wrong
+    var windowInfo = "<div id='pano'></div>" +
+                "<div id='wikiLink'>" +
+                  "<h2>" + title + "</h2>" +
+                  "<a href='#'>Unable to load Wikipedia information</a></div>";
   });
 }
 
-
+// Toggles css rules
 function toggle() {
   var button = document.getElementById('show-menu');
   var menu = document.getElementById('side-menu');

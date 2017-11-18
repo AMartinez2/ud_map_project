@@ -93,7 +93,11 @@ html, body {
   float: left;
   padding-left: 13px;
 }
+#wikiLink h2 {
+  font-size: 20px;
+}
 #wikiLink a {
   text-decoration: none;
-  color: black;
+  color: blue;
+  font-size: 30px;
 }
