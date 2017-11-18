@@ -7,22 +7,11 @@ html, body {
   overflow: hidden;
   background-color: #212121;
 }
-
 .con {
   height: 100%;
   width: 100%;
-  min-width: 1230px;
-  max-width: 1230px;
   margin: auto;
 }
-
-@media screen and (min-width: 1400px) {
-  .con {
-    max-width: 100px;
-    max-height: 1000px;
-  }
-}
-
 .hidden {
   /*visibility: hidden;*/
   position: absolute;
@@ -30,46 +19,40 @@ html, body {
   visibility: hidden;
   left: -500px;
 }
-
 .stretch {
   width: 100% !important;
   margin-left: auto !important;
 }
-
 /* Map */
 #map {
   height: 100%;
-  width: 80%;
+  width: 100%;
   float: left;
   bottom: 0;
+  overflow: hidden;
+  z-index: 1;
 }
-
 /* side-menu */
 .side-menu {
-  float:left;
+  position: fixed;
   height: 100%;
-  width: 20%;
+  width: 240px;
   min-width: 245px;
   background: #212121;
   color: white;
   text-align: center;
-  transition: all 0.3s;
+  z-index: 1000;
+  overflow:auto;
 }
-
 #location-input {
   border: 0;
   padding: 0;
   width: 70%;
   margin-top: 15px;
 }
-
-#submit-location {
-}
-
 #location-list-element {
   padding-top: 20px;
 }
-
 #location-list-element a {
   text-decoration: none;
   color: white;
@@ -78,34 +61,38 @@ html, body {
 #location-list-element a:hover {
   color: grey;
 }
-
 #location-list-element h5 {
   margin-top: 0;
   margin-bottom: 3px;
 }
-
 #show-menu {
   position: fixed;
   margin: 5px;
   z-index: 2;
+  max-width: 250px;
 }
-
 #inner-toggle {
   margin-top: 10px;
 }
 
 /* infowindow */
 #pano {
+  position: inherit;
   width: 300px;
   height: 300px;
   float: left;
 }
-
+@media screen and (max-width: 700px) {
+  #pano {
+    float: none;
+    position: absolute;
+    top: -500px;
+  }
+}
 #wikiLink {
   float: left;
   padding-left: 13px;
 }
-
 #wikiLink a {
   text-decoration: none;
   color: black;

@@ -187,9 +187,11 @@ var geocoder;
 var streetView
 var bounds;
 
+
+// Inital call function
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 38.88995829, lng: -77.02966092},
+    center: {lat: 38.88995829, lng: -77.02966092}, // Default center of map
     zoom: 13,
     mapControl: true,
     mapTypeControlOptions: {
@@ -207,12 +209,14 @@ function initMap() {
 
   bounds = new google.maps.LatLngBounds();
   for (var i = 0; i < locations.length; i++) {
+    // Create a marker
     var marker = new google.maps.Marker({
       position: locations[i].location,
       title: locations[i].title,
       animation: google.maps.Animation.DROP,
       id: i
     });
+    // Push the info to the markers array
     markers.push({
       title:    marker.title,
       position: marker.position,
@@ -235,6 +239,12 @@ function initMap() {
 // This function adds information to a markers corrisponding infoWindow and
 //  displays the marker's location information when a marker is clicked
 function populateInfoWindow(marker, infoWindow) {
+  if (marker.getAnimation() !== null) {
+       marker.setAnimation(null);
+  }
+  else {
+    marker.setAnimation(google.maps.Animation.DROP);
+  }
   // Check to see if infoWindow is already on our clicked marker
   if (infoWindow.marker != marker) {
     // Clear the window
@@ -246,10 +256,12 @@ function populateInfoWindow(marker, infoWindow) {
       infoWindow.marker = null;
     });
     map.panTo(marker.position);
+    // Marker animation
     infoWindow.setContent("<div>" + marker.title + "</div>");
     // Add that young streetview to the infoWindow if possible
     var radius = 40;
 
+    // Get the streetView panorama for the infoWindow
     function getStreetView(data, status) {
       if (status == google.maps.StreetViewStatus.OK) {
         var location = data.location.latLng;
@@ -267,6 +279,7 @@ function populateInfoWindow(marker, infoWindow) {
             pitch: 30
           }
         };
+        // Bind
         var panorama = new google.maps.StreetViewPanorama(
           document.getElementById('pano'), panoramaOptions);
       } else {
@@ -277,10 +290,11 @@ function populateInfoWindow(marker, infoWindow) {
     streetView.getPanoramaByLocation(marker.position, radius, getStreetView);
     // Call to get relevant wikipedia page for clicked marker
     getWikiPage(marker.title);
+    // Open our infoWindow
     infoWindow.open(map, marker);
-
   }
 }
+
 
 // Wikipedia Api Call Function
 function getWikiPage(title) {
@@ -303,6 +317,10 @@ function getWikiPage(title) {
         $wiki.append('<a href="' + url + '">' + list[i] + '</a></br>').html;
       };
       clearTimeout(timeout);
+    },
+    error: function(data) { // Something went wrong
+      var $wiki = $('#wikiLink');
+      $wiki.append("Unable to get Wikipedia resources.");
     }
   });
 }
@@ -348,24 +366,28 @@ function AppViewModel() {
 
   self.markerList = ko.computed(function() {
     var fill = self.inputLocation().toLowerCase();
-    if (!fill) {
+    // If there is something in the filter input, apply the filter to the markers
+    if (fill) {
+      return ko.utils.arrayFilter(markers, function(mk) {
+        // If there is no match, indexOf() returns -1
+        var ft = mk.title.toLowerCase().indexOf(fill) !== -1;
+        if (ft) {
+          mk.marker.setVisible(true);
+        }
+        else {
+          mk.marker.setVisible(false);
+        }
+        return ft;
+      });
+    }
+    // If there is no input, just display all markers
+    else {
       for (var i = 0; i < markers.length; i++) {
         if (markers[i].marker) {
           markers[i].marker.setVisible(true);
         }
       }
       return markers;
-    } else {
-      return ko.utils.arrayFilter(markers, function(mk) {
-        // If there is no match, indexOf() returns -1
-        var select = mk.title.toLowerCase().indexOf(fill) !== -1;
-        if (select) {
-          mk.marker.setVisible(true);
-        } else {
-          mk.marker.setVisible(false);
-        }
-        return select;
-      });
     }
   });
 }
