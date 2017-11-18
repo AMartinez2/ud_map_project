@@ -12,7 +12,7 @@ var locations = [
   {title: 'Smithsonian Institution', location: {lat: 38.8859942, lng: -77.0212813}},
   {title: 'Folger Shakespeare Library', location: {lat: 38.8893719, lng: -77.0027549}},
   {title: 'Smithsonian Castle', location: {lat: 38.88878241, lng: -77.02601686}},
-]
+];
 var styles = [
 {
     "featureType": "all",
@@ -184,7 +184,7 @@ var markers = [];
 var infoWindow;
 var map;
 var geocoder;
-var streetView
+var streetView;
 var bounds;
 
 
@@ -224,9 +224,8 @@ function initMap() {
       trim:     marker.title.replace(/\s/g, '-') // For assigning id to html elements
     });
     bounds.extend(marker.position);
-    marker.addListener('click', function() {
-      populateInfoWindow(this, infoWindow);
-    });
+    // Create Marker Listener
+    createListener(marker);
     marker.setMap(map);
     // codeAddress(Locations[i]);
   }
@@ -234,6 +233,17 @@ function initMap() {
   // Apply bindings once google finished is setup
   ko.applyBindings(new AppViewModel());
 }
+
+
+function createListener(marker) {
+  marker.addListener('click', function() {
+    populateInfoWindow(this, infoWindow);
+  });
+}
+
+
+// Get the streetView panorama for the infoWindow
+
 
 
 // This function adds information to a markers corrisponding infoWindow and
@@ -261,15 +271,15 @@ function populateInfoWindow(marker, infoWindow) {
     // Add that young streetview to the infoWindow if possible
     var radius = 40;
 
-    // Get the streetView panorama for the infoWindow
-    function getStreetView(data, status) {
+    // Get panoramic street view for given marker
+    streetView.getPanoramaByLocation(marker.position, radius, function (data, status) {
       if (status == google.maps.StreetViewStatus.OK) {
         var location = data.location.latLng;
         var heading = google.maps.geometry.spherical.computeHeading(
           location, marker.position);
+          // Data to be displayed in window
           var windowData = '<div id="pano"></div>' +
-                          '<div id="wikiLink"><h2>' +
-                                              marker.title +
+                          '<div id="wikiLink"><h2>' + marker.title +
                             '</h2><h5>Related Wiki Articles</h4></div>';
         infoWindow.setContent(windowData);
         var panoramaOptions = {
@@ -286,8 +296,7 @@ function populateInfoWindow(marker, infoWindow) {
         infoWindow.setContent('<div><h3>' + marker.title + marker.position + '</h3></div>' +
           '<div>No Street View Found</div><div id="wikiLink"></div>');
       }
-    }
-    streetView.getPanoramaByLocation(marker.position, radius, getStreetView);
+    });
     // Call to get relevant wikipedia page for clicked marker
     getWikiPage(marker.title);
     // Open our infoWindow
@@ -315,7 +324,7 @@ function getWikiPage(title) {
       for (var i = 0; i < list.length; i++) {
         var url = 'http://en.wikipedia.org/wiki/' + list[i];
         $wiki.append('<a href="' + url + '">' + list[i] + '</a></br>').html;
-      };
+      }
       clearTimeout(timeout);
     },
     error: function(data) { // Something went wrong
@@ -335,14 +344,14 @@ function toggle() {
     button.classList.remove('hidden');
     menu.classList.add('hidden');
     map.classList.add('stretch');
-    google.maps.event.trigger(map, 'resize')
+    google.maps.event.trigger(map, 'resize');
   }
   // Show menu
   else {
     button.classList.add('hidden');
     menu.classList.remove('hidden');
     map.classList.remove('stretch');
-    google.maps.event.trigger(map, 'resize')
+    google.maps.event.trigger(map, 'resize');
   }
 }
 
