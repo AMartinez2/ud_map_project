@@ -10,11 +10,11 @@
   <body>
     <div class="con">
       <div class="side-menu" id="side-menu">
-        <button id="inner-toggle" onclick="toggle()">Toggle Menu</button>
+        <button id="inner-toggle" data-bind="click: $root.tog">Toggle Menu</button>
         <input id="location-input" data-bind="value: inputLocation">
         <button id="submit-location" data-bind="click: $root.run">GO</button>
         <div data-bind="foreach: markerList" id="location-list-element">
-          <a href="#" class="list-element" data-bind="attr: {id: trim}" onclick="clicked(this);">
+          <a href="#" class="list-element" data-bind="attr: {id: trim}, click: function(data, event) { $root.cl(trim, $data, event); }">
             <h5 data-bind="text: title"></h5>
           </a><br>
         </div>

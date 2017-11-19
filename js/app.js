@@ -282,7 +282,7 @@ function populateInfoWindow(marker, infoWindow, windowInfo) {
           document.getElementById('pano'), panoramaOptions);
       } else {
         infoWindow.setContent('<div><h3>' + marker.title + marker.position + '</h3></div>' +
-          '<div>No Street View Found</div><div id="wikiLink"></div>');
+          '<div>No Street View Found</div>');
       }
     });
     // Open our infoWindow
@@ -356,9 +356,10 @@ function toggle() {
 
 // An item in the location list was clicked
 // Argument will be a DOM element. Use element id to compare to `marker.trim`
-function clicked(parentNode) {
+function clicked(nodeId) {
+  console.log("waffles");
   markers.forEach(function(marker) {
-				if (marker.trim == parentNode.id) {
+				if (marker.trim == nodeId) {
           google.maps.event.trigger(marker.marker, 'click');
 				}
   });
@@ -368,6 +369,12 @@ function clicked(parentNode) {
 // Our AppViewModel
 function AppViewModel() {
   var self = this;
+  self.tog = function() {
+    toggle();
+  }
+  self.cl = function(node) {
+    clicked(node);
+  }
   // textInput
   self.inputLocation = ko.observable("");
 
