@@ -328,6 +328,7 @@ function getWikiPage(title, marker) {
                 "<div id='wikiLink'>" +
                   "<h2>" + title + "</h2>" +
                   "<a href='#'>Unable to load Wikipedia information</a></div>";
+    populateInfoWindow(marker, infoWindow, windowInfo);
   });
 }
 
@@ -396,4 +397,10 @@ function AppViewModel() {
       return markers;
     }
   });
+}
+
+
+// Error handling for google maps on fail
+function mapsError() {
+    alert("Google Maps could not be loaded.");
 }
