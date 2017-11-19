@@ -369,12 +369,6 @@ function clicked(nodeId) {
 // Our AppViewModel
 function AppViewModel() {
   var self = this;
-  self.tog = function() {
-    toggle();
-  }
-  self.cl = function(node) {
-    clicked(node);
-  }
   // textInput
   self.inputLocation = ko.observable("");
 
